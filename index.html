@@ -1,0 +1,846 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mustafa Hamdy | Software Engineer</title>
+    <link rel="icon" href="My Logo Light.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              bg: "#0a0a0a",
+              surface: "#141414",
+              primary: "#ededed",
+              secondary: "#888888",
+              accentA: "#39FF14", // Neon Green
+              accentB: "#00C7FF", // Electric Cyan
+            },
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      /* --- SPLINE BACKGROUND --- */
+      #spline-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        border: none;
+        opacity: 0.6;
+      }
+
+      /* --- CAROUSEL STYLES --- */
+      .carousel-track {
+        scrollbar-width: none; /* Hide scrollbar Firefox */
+        -ms-overflow-style: none; /* Hide scrollbar IE/Edge */
+      }
+      .carousel-track::-webkit-scrollbar {
+        display: none; /* Hide scrollbar Chrome/Safari */
+      }
+
+      /* --- FADE UP ANIMATION --- */
+      .fade-up {
+        opacity: 0;
+        transform: translateY(30px);
+        transition:
+          opacity 0.8s ease-out,
+          transform 0.8s ease-out;
+      }
+      .fade-up.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* --- GLOBAL STYLES --- */
+      body {
+        background-color: #050505;
+        color: #ededed;
+      }
+
+      /* --- TYPING CURSOR --- */
+      .typing-cursor::after {
+        content: "▋";
+        color: #39ff14;
+        animation: blink 1s step-end infinite;
+        margin-left: 2px;
+        vertical-align: bottom;
+      }
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0;
+        }
+      }
+
+      /* --- GLASSMORPHISM --- */
+      .glass {
+        background: rgba(10, 10, 10, 0.7);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      /* --- CODE WINDOW --- */
+      .code-window {
+        background: rgba(17, 17, 17, 0.9);
+        border: 1px solid #333;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      }
+      .code-line {
+        font-family: "JetBrains Mono", monospace;
+        min-height: 1.5rem;
+        display: flex;
+        align-items: center;
+      }
+
+      /* --- PROJECT CARDS --- */
+      .project-card {
+        position: relative;
+        overflow: hidden;
+        background: rgba(20, 20, 20, 0.8);
+      }
+      .blueprint-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #141414;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #00c7ff;
+        z-index: 10;
+      }
+      .project-card:hover .blueprint-layer {
+        opacity: 1;
+      }
+
+      .diagram-box {
+        border: 1px dashed #00c7ff;
+        color: #00c7ff;
+        padding: 5px 10px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.7rem;
+        background: rgba(0, 199, 255, 0.1);
+      }
+      .arrow {
+        color: #555;
+        font-size: 10px;
+        margin: 0 4px;
+      }
+
+      /* --- DEV MODE --- */
+      body.dev-mode * {
+        outline: 1px dashed rgba(0, 199, 255, 0.3);
+      }
+      body.dev-mode section::before,
+      body.dev-mode div::before,
+      body.dev-mode nav::before {
+        content: "<" attr(data-tag) ">";
+        position: absolute;
+        top: -10px;
+        left: 0;
+        font-size: 9px;
+        font-family: "JetBrains Mono";
+        color: #39ff14;
+        background: #000;
+        padding: 1px 3px;
+        z-index: 50;
+        pointer-events: none;
+        border: 1px solid #333;
+      }
+      .terminal-input {
+        background: transparent;
+        border: none;
+        color: #39ff14;
+        outline: none;
+        width: 100%;
+        font-family: "JetBrains Mono";
+      }
+
+      /* Terminal Load Bar */
+      .loading-bar {
+        display: inline-block;
+        width: 0%;
+        height: 10px;
+        background-color: #39ff14;
+        transition: width 2s ease-in-out;
+      }
+    </style>
+  </head>
+  <body class="transition-all duration-300" data-tag="BODY">
+
+    <nav
+      class="fixed top-0 w-full z-50 glass h-16 flex items-center justify-between px-6 fade-up"
+      data-tag="NAV"
+    >
+      <div
+        id="nav-logo"
+        class="text-xl font-bold tracking-tight font-mono text-white"
+      >
+        Mustafa_
+      </div>
+      <div class="flex items-center gap-8">
+        <div class="hidden md:flex gap-6 font-mono text-sm text-secondary">
+          <a href="#projects" class="hover:text-accentA transition-colors"
+            >./Projects</a
+          >
+          <a href="#skills" class="hover:text-accentA transition-colors"
+            >./Stack</a
+          >
+          <a href="#contact" class="hover:text-accentA transition-colors"
+            >./Contact</a
+          >
+        </div>
+        
+      </div>
+    </nav>
+
+    <header
+      class="min-h-screen pt-24 px-6 flex items-center justify-center container mx-auto"
+      data-tag="HEADER"
+    >
+    <iframe
+    src="https://my.spline.design/kitzlogo-2dQvr3YiiK8ODPnTJzOGNr6p/"
+    frameborder="0"
+    class="absolute inset-0 w-full h-full z-0"
+    style="pointer-events: auto;" 
+    ></iframe>
+    <div class="absolute bottom-0 right-0 w-[150px] h-[60px] bg-[#050505] z-20"></div>
+      <div
+        class="grid grid-cols-1 lg:grid-cols-2 gap-12 w-full max-w-6xl items-center"
+      >
+        <div
+          class="code-window rounded-lg overflow-hidden font-mono text-sm leading-relaxed fade-up"
+          data-tag="DIV.ALGORITHM"
+        >
+          <div
+            class="flex items-center gap-2 bg-[#1a1a1a] p-3 border-b border-white/5"
+          >
+            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+            <span class="ml-4 text-xs text-secondary"
+              >Pathfinder.py (5MPK)</span
+            >
+          </div>
+          <div class="p-6 text-gray-400 min-h-[350px]" id="code-block"></div>
+        </div>
+        <div class="relative group fade-up delay-100" data-tag="DIV.UI_RESULT">
+          <div
+            class="relative bg-[rgba(20,20,20,0.85)] backdrop-blur-md border border-white/10 rounded-xl p-8 hover:scale-[1.01] transition-transform duration-300 shadow-2xl"
+          >
+            <div class="flex justify-between items-start mb-8">
+              <div>
+                <h3 class="text-2xl font-bold text-white mb-1">
+                  Mustafa Hamdy
+                </h3>
+                <p class="text-secondary text-sm font-mono">
+                  Software Engineer | Cairo, EG
+                </p>
+              </div>
+              <span
+                class="flex items-center gap-2 px-3 py-1 rounded-full bg-accentA/10 text-accentA text-xs font-mono border border-accentA/20"
+              >
+                <span
+                  class="w-2 h-2 rounded-full bg-accentA animate-pulse"
+                ></span>
+                OPEN TO WORK
+              </span>
+            </div>
+            <div
+              class="relative h-32 mb-6 border border-white/5 bg-black/60 rounded flex items-center justify-center overflow-hidden"
+            >
+              <div
+                class="absolute inset-0 opacity-20"
+                style="
+                  background-image: radial-gradient(
+                    #39ff14 1px,
+                    transparent 1px
+                  );
+                  background-size: 10px 10px;
+                "
+              ></div>
+              <div
+                class="w-2/3 h-0.5 bg-gradient-to-r from-accentA to-accentB relative"
+              >
+                <div
+                  class="absolute -top-1 -left-1 w-3 h-3 bg-accentA rounded-full shadow-[0_0_10px_#39FF14]"
+                ></div>
+                <div
+                  class="absolute -top-1 -right-1 w-3 h-3 bg-accentB rounded-full shadow-[0_0_10px_#00C7FF]"
+                ></div>
+              </div>
+              <div
+                class="absolute bottom-2 right-2 font-mono text-[10px] text-accentB"
+              >
+                Nodes: 2,800 | Edges: 36,000+
+              </div>
+            </div>
+            <div
+              class="font-mono text-xs text-secondary border-t border-white/10 pt-4 flex justify-between"
+            >
+              <span>specialization: Mobile & Cloud</span>
+              <span>gpa: 3.21/4.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section id="skills" class="py-24" data-tag="SECTION.SKILLS">
+      <div class="container mx-auto px-6">
+        <div class="flex justify-between items-end mb-12 fade-up">
+          <h2 class="text-3xl font-bold flex items-center gap-3">
+            <span class="text-accentB font-mono">02.</span> Technical Arsenal
+          </h2>
+          <div class="flex gap-2 font-mono">
+            <button
+              onclick="scrollCarousel('skills-track', -300)"
+              class="w-10 h-10 border border-white/10 hover:border-accentB hover:text-accentB flex items-center justify-center transition-all bg-black/50"
+            >
+              &lt;
+            </button>
+            <button
+              onclick="scrollCarousel('skills-track', 300)"
+              class="w-10 h-10 border border-white/10 hover:border-accentB hover:text-accentB flex items-center justify-center transition-all bg-black/50"
+            >
+              &gt;
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-hidden fade-up delay-100">
+          <div
+            id="skills-track"
+            class="carousel-track flex gap-8 overflow-x-auto snap-x snap-mandatory pb-8"
+          >
+            <div
+              class="min-w-[300px] md:min-w-[350px] snap-center p-6 border border-white/10 rounded-lg hover:border-accentA bg-[rgba(20,20,20,0.9)] backdrop-blur transition-all group cursor-pointer"
+            >
+              <h3
+                class="text-xl font-bold mb-4 group-hover:text-accentA transition-colors"
+              >
+                Frontend_
+              </h3>
+              <div class="flex flex-wrap gap-2">
+                <span
+                  class="px-3 py-1 bg-black/50 rounded border border-white/5 text-sm text-secondary font-mono"
+                  >React.JS</span
+                >
+                <span
+                  class="px-3 py-1 bg-black/50 rounded border border-white/5 text-sm text-secondary font-mono"
+                  >Tailwind</span
+                >
+                <span
+                  class="px-3 py-1 bg-black/50 rounded border border-white/5 text-sm text-secondary font-mono"
+                  >TypeScript</span
+                >
+                <span
+                  class="px-3 py-1 bg-black/50 rounded border border-white/5 text-sm text-secondary font-mono"
+                  >Material UI</span
+                >
+              </div>
+            </div>
+
+            <div
+              class="min-w-[300px] md:min-w-[350px] snap-center p-6 border border-white/10 rounded-lg hover:border-accentB bg-[rgba(20,20,20,0.9)] backdrop-blur transition-all group cursor-pointer"
+            >
+              <h3
+                class="text-xl font-bold mb-4 group-hover:text-accentB transition-colors"
+              >
+                Backend_
+              </h3>
+              <div class="flex flex-wrap gap-2">
+                <span
+                  class="px-3 py-1 bg-black/50 rounded border border-white/5 text-sm text-secondary font-mono"
+                  >Node.JS</span
+                >
+                <span
+                  class="px-3 py-1 bg-black/50 rounded border border-white/5 text-sm text-secondary font-mono"
+                  >Python</span
+                >
+                <span
+                  class="px-3 py-1 bg-black/50 rounded border border-white/5 text-sm text-secondary font-mono"
+                  >SQL</span
+                >
+                <span
+                  class="px-3 py-1 bg-black/50 rounded border border-white/5 text-sm text-secondary font-mono"
+                  >MongoDB</span
+                >
+              </div>
+            </div>
+
+            <div
+              class="min-w-[300px] md:min-w-[350px] snap-center p-6 border border-white/10 rounded-lg hover:border-white bg-[rgba(20,20,20,0.9)] backdrop-blur transition-all group cursor-pointer"
+            >
+              <h3
+                class="text-xl font-bold mb-4 group-hover:text-white transition-colors"
+              >
+                Mobile_
+              </h3>
+              <div class="flex flex-wrap gap-2">
+                <span
+                  class="px-3 py-1 bg-black/50 rounded border border-white/5 text-sm text-secondary font-mono"
+                  >Android</span
+                >
+                <span
+                  class="px-3 py-1 bg-black/50 rounded border border-white/5 text-sm text-secondary font-mono"
+                  >Kotlin</span
+                >
+                <span
+                  class="px-3 py-1 bg-black/50 rounded border border-white/5 text-sm text-secondary font-mono"
+                  >Firebase</span
+                >
+                <span
+                  class="px-3 py-1 bg-black/50 rounded border border-white/5 text-sm text-secondary font-mono"
+                  >Jetpack</span
+                >
+              </div>
+            </div>
+
+            <div
+              class="min-w-[300px] md:min-w-[350px] snap-center p-6 border border-white/10 rounded-lg hover:border-yellow-400 bg-[rgba(20,20,20,0.9)] backdrop-blur transition-all group cursor-pointer"
+            >
+              <h3
+                class="text-xl font-bold mb-4 group-hover:text-yellow-400 transition-colors"
+              >
+                DevOps & Tools_
+              </h3>
+              <div class="flex flex-wrap gap-2">
+                <span
+                  class="px-3 py-1 bg-black/50 rounded border border-white/5 text-sm text-secondary font-mono"
+                  >Docker</span
+                >
+                <span
+                  class="px-3 py-1 bg-black/50 rounded border border-white/5 text-sm text-secondary font-mono"
+                  >Git</span
+                >
+                <span
+                  class="px-3 py-1 bg-black/50 rounded border border-white/5 text-sm text-secondary font-mono"
+                  >AWS</span
+                >
+                <span
+                  class="px-3 py-1 bg-black/50 rounded border border-white/5 text-sm text-secondary font-mono"
+                  >Linux</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section
+      id="projects"
+      class="py-24 container mx-auto px-6"
+      data-tag="SECTION.PROJECTS"
+    >
+      <div class="flex justify-between items-end mb-12 fade-up">
+        <h2 class="text-3xl font-bold flex items-center gap-3">
+          <span class="text-accentA font-mono">03.</span> Engineered Systems
+        </h2>
+        <div class="flex gap-2 font-mono">
+          <button
+            onclick="scrollCarousel('projects-track', -500)"
+            class="w-10 h-10 border border-white/10 hover:border-accentA hover:text-accentA flex items-center justify-center transition-all bg-black/50"
+          >
+            &lt;
+          </button>
+          <button
+            onclick="scrollCarousel('projects-track', 500)"
+            class="w-10 h-10 border border-white/10 hover:border-accentA hover:text-accentA flex items-center justify-center transition-all bg-black/50"
+          >
+            &gt;
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-hidden fade-up delay-100">
+        <div
+          id="projects-track"
+          class="carousel-track flex gap-8 overflow-x-auto snap-x snap-mandatory pb-8"
+        >
+          <div
+            class="min-w-[85vw] md:min-w-[600px] snap-center group"
+            data-tag="PROJ.5MPK"
+          >
+            <div
+              class="project-card h-80 rounded-lg border border-white/10 relative cursor-crosshair"
+            >
+              <div
+                class="absolute inset-0 transition-opacity duration-300 group-hover:opacity-0"
+              >
+                <div
+                  class="w-full h-full bg-[#1a1a1a] flex items-center justify-center text-gray-600"
+                >
+                  <img
+                    src="5mpk.png"
+                    alt="5MPK Interface"
+                    class="w-full h-full object-cover"
+                    onerror="this.style.display = 'none'"
+                  />
+                  <span class="absolute">[ Add 5mpk.png ]</span>
+                </div>
+              </div>
+              <div
+                class="blueprint-layer flex flex-col items-center justify-center gap-2 p-4"
+              >
+                <span
+                  class="font-mono text-xs text-accentB mb-4 tracking-widest"
+                  >ALGORITHM FLOW</span
+                >
+                <div class="flex flex-wrap items-center justify-center gap-2">
+                  <div class="diagram-box">Android</div>
+                  <div class="arrow">-></div>
+                  <div class="diagram-box border-yellow-500 text-yellow-500">
+                    Chaquopy
+                  </div>
+                  <div class="arrow">-></div>
+                  <div class="diagram-box">Firebase</div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="mt-4 bg-black/50 p-6 rounded border border-white/5 backdrop-blur-sm"
+            >
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="text-xl font-bold">5MPK Transport Planner</h3>
+                  <p class="text-secondary text-sm mt-2">
+                    Multimodal route planning with A* algorithm (1800ms
+                    execution).
+                  </p>
+                </div>
+                <span class="text-accentA font-mono text-xs"
+                  >GRADUATION PROJECT</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="min-w-[85vw] md:min-w-[600px] snap-center group"
+            data-tag="PROJ.CARCO"
+          >
+            <div
+              class="project-card h-80 rounded-lg border border-white/10 relative cursor-crosshair"
+            >
+              <div
+                class="absolute inset-0 transition-opacity duration-300 group-hover:opacity-0"
+              >
+                <div
+                  class="w-full h-full bg-[#1a1a1a] flex items-center justify-center text-gray-600"
+                >
+                  <img
+                    src="carco.png"
+                    alt="Carco Interface"
+                    class="w-full h-full object-cover"
+                    onerror="this.style.display = 'none'"
+                  />
+                  <span class="absolute">[ Add carco.png ]</span>
+                </div>
+              </div>
+              <div
+                class="blueprint-layer flex flex-col items-center justify-center gap-2"
+              >
+                <span
+                  class="font-mono text-xs text-accentB mb-4 tracking-widest"
+                  >MVC ARCHITECTURE</span
+                >
+                <div class="flex items-center gap-2">
+                  <div class="diagram-box">Client</div>
+                  <div class="arrow"><--></div>
+                  <div class="diagram-box">.NET MVC</div>
+                  <div class="arrow"><--></div>
+                  <div class="diagram-box">SQL Server</div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="mt-4 bg-black/50 p-6 rounded border border-white/5 backdrop-blur-sm"
+            >
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="text-xl font-bold">Carco Marketplace</h3>
+                  <p class="text-secondary text-sm mt-2">
+                    Full-stack platform with secure auth and admin dashboard.
+                  </p>
+                </div>
+                <span class="text-accentB font-mono text-xs">FREELANCE</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer
+      id="contact"
+      class="bg-black/90 py-16 border-t border-white/10 font-mono fade-up"
+      data-tag="FOOTER"
+    >
+      <div class="container mx-auto px-6 max-w-2xl">
+        <div class="text-accentA text-sm mb-4">
+          > INITIATING CONNECTION...<br />
+          > TARGET: mustafahamdy.bus@gmail.com
+        </div>
+
+        <form id="terminal-form" class="space-y-6">
+          <div>
+            <label class="block text-secondary text-xs mb-1"
+              >IDENTIFICATION_</label
+            >
+            <div
+              class="flex items-center gap-2 text-primary border-b border-white/20 pb-2 focus-within:border-accentA"
+            >
+              <span class="text-accentA">></span>
+              <input
+                type="text"
+                id="contact-name"
+                placeholder="Recruiter / Client Name"
+                class="terminal-input"
+              />
+            </div>
+          </div>
+          <div>
+            <label class="block text-secondary text-xs mb-1">PAYLOAD_</label>
+            <div
+              class="flex items-start gap-2 text-primary border-b border-white/20 pb-2 focus-within:border-accentA"
+            >
+              <span class="text-accentA mt-1">></span>
+              <textarea
+                id="contact-msg"
+                rows="3"
+                placeholder="Message content..."
+                class="terminal-input resize-none bg-transparent outline-none w-full"
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="pt-4" id="action-area">
+            <button
+              type="button"
+              onclick="animateContact()"
+              id="send-btn"
+              class="px-6 py-2 bg-accentA text-black font-bold text-sm hover:bg-white transition-colors"
+            >
+              [ EXECUTE SEND ]
+            </button>
+          </div>
+
+          <div
+            id="console-output"
+            class="hidden text-xs text-accentA space-y-1"
+          >
+            <div>> COMPILING PACKET...</div>
+            <div class="w-full bg-gray-800 h-2 rounded mt-2 overflow-hidden">
+              <div id="progress-bar" class="h-full bg-accentA w-0"></div>
+            </div>
+            <div id="success-msg" class="hidden text-green-400 pt-2">
+              > STATUS: 200 OK. DATA SENT.
+            </div>
+          </div>
+        </form>
+      </div>
+    </footer>
+
+    <script>
+      // --- 1. CAROUSEL LOGIC ---
+      function scrollCarousel(id, distance) {
+        const track = document.getElementById(id);
+        track.scrollBy({ left: distance, behavior: "smooth" });
+      }
+
+      // --- 2. CONTACT FORM ANIMATION ---
+      function animateContact() {
+        const btnArea = document.getElementById("action-area");
+        const consoleOut = document.getElementById("console-output");
+        const progressBar = document.getElementById("progress-bar");
+        const successMsg = document.getElementById("success-msg");
+        const inputs = [
+          document.getElementById("contact-name"),
+          document.getElementById("contact-msg"),
+        ];
+
+        // Lock Inputs
+        inputs.forEach((input) => {
+          input.disabled = true;
+          input.classList.add("opacity-50", "cursor-not-allowed");
+        });
+
+        // Hide Button, Show Console
+        btnArea.classList.add("hidden");
+        consoleOut.classList.remove("hidden");
+
+        // Animate Bar
+        setTimeout(() => {
+          progressBar.style.width = "100%";
+        }, 100);
+
+        // Show Success Message
+        setTimeout(() => {
+          successMsg.classList.remove("hidden");
+        }, 2000); // 2 seconds later
+      }
+
+      // --- 3. NAV TYPING ---
+      async function typeLogo() {
+        const logo = document.getElementById("nav-logo");
+        logo.textContent = ""; // Clear initial
+        const text = "MustafaHamdy_DEV";
+        logo.classList.add("typing-cursor");
+
+        await new Promise((r) => setTimeout(r, 500));
+        for (let char of text) {
+          logo.textContent += char;
+          await new Promise((r) => setTimeout(r, 150));
+        }
+      }
+
+      // --- 4. SCROLL OBSERVER ---
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("visible");
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.1 },
+      );
+      document
+        .querySelectorAll(".fade-up")
+        .forEach((el) => observer.observe(el));
+
+      // --- 5. CODE TYPING ---
+      const codeLines = [
+        [
+          { text: "import ", class: "text-accentB" },
+          { text: "chaquopy", class: "text-white" },
+        ],
+        [
+          { text: "from ", class: "text-accentB" },
+          { text: "algorithms ", class: "text-white" },
+          { text: "import ", class: "text-accentB" },
+          { text: "AStar", class: "text-yellow-300" },
+        ],
+        [],
+        [
+          { text: "def ", class: "text-accentB" },
+          { text: "find_optimal_route", class: "text-yellow-300" },
+          { text: "(start, end):", class: "text-white" },
+        ],
+        [{ text: "# Native C++ speed via Python", class: "text-gray-500" }],
+        [
+          { text: "graph = ", class: "text-white" },
+          { text: "load_cairo_graph", class: "text-accentA" },
+          { text: "()", class: "text-white" },
+        ],
+        [
+          { text: "route = ", class: "text-white" },
+          { text: "AStar", class: "text-yellow-300" },
+          { text: ".compute(graph, start, end)", class: "text-white" },
+        ],
+        [],
+        [
+          { text: "return ", class: "text-accentB" },
+          { text: "{", class: "text-white" },
+        ],
+        [
+          { text: '"time"', class: "text-green-400" },
+          { text: ": ", class: "text-white" },
+          { text: '"1800ms"', class: "text-green-400" },
+          { text: ",", class: "text-white" },
+        ],
+        [
+          { text: '"path"', class: "text-green-400" },
+          { text: ": ", class: "text-white" },
+          { text: "route.nodes", class: "text-white" },
+        ],
+        [{ text: "}", class: "text-white" }],
+      ];
+
+      async function typeCode() {
+        const container = document.getElementById("code-block");
+        if (!container) return;
+        const indentations = [0, 0, 0, 0, 4, 4, 4, 0, 4, 8, 8, 4];
+
+        for (let i = 0; i < codeLines.length; i++) {
+          const lineDiv = document.createElement("div");
+          lineDiv.className = "code-line";
+          lineDiv.style.paddingLeft = indentations[i] * 8 + "px";
+          lineDiv.classList.add("typing-cursor");
+          container.appendChild(lineDiv);
+
+          for (const segment of codeLines[i]) {
+            const span = document.createElement("span");
+            span.className = segment.class;
+            lineDiv.appendChild(span);
+            for (const char of segment.text) {
+              span.textContent += char;
+              await new Promise((r) => setTimeout(r, 15));
+            }
+          }
+          lineDiv.classList.remove("typing-cursor");
+          if (codeLines[i].length > 0)
+            await new Promise((r) => setTimeout(r, 50));
+        }
+        const finalCursor = document.createElement("div");
+        finalCursor.className = "typing-cursor ml-2";
+        container.lastChild.appendChild(finalCursor);
+      }
+
+      window.addEventListener("load", () => {
+        typeLogo();
+        typeCode();
+      });
+
+      // --- DEV MODE ---
+      const btnUser = document.getElementById("toggleUser");
+      const btnDev = document.getElementById("toggleDev");
+      const body = document.body;
+      btnDev.addEventListener("click", () => {
+        body.classList.add("dev-mode");
+        btnDev.classList.add("bg-accentB", "text-black", "font-bold");
+        btnDev.classList.remove("text-secondary");
+        btnUser.classList.remove("bg-primary", "text-black", "font-bold");
+        btnUser.classList.add("text-secondary");
+      });
+      btnUser.addEventListener("click", () => {
+        body.classList.remove("dev-mode");
+        btnUser.classList.add("bg-primary", "text-black", "font-bold");
+        btnUser.classList.remove("text-secondary");
+        btnDev.classList.remove("bg-accentB", "text-black", "font-bold");
+        btnDev.classList.add("text-secondary");
+      });
+    </script>
+  </body>
+</html>
